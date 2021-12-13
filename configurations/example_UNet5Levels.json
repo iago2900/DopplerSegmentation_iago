@@ -1,0 +1,610 @@
+{
+    "basedir": "/path/to/basedir/",
+    "savedir": "/path/to/basedir/TrainedModels/",
+    "datadir": "/path/to/basedir/databases/ALL_DOPPLER/",
+    "device": "cuda",
+    "iterator": "tqdm.tqdm",
+    "keep_fetal": true,
+    "keep_pediatric": false,
+    "keep_tdi": true,
+    "keep_valves": true,
+    "keep_vessels": true,
+    "seed": 123456,
+    "epochs": 100,
+    "dataset": {
+        "class": "src.data.DatasetDopplerDict",
+        "arguments": {
+            "shape": [256,512],
+            "dtype": "float32"
+        }
+    },
+    "dataloader": {
+        "class": "torch.utils.data.DataLoader",
+        "arguments": {
+            "batch_size": 8,
+            "num_workers": 4,
+            "pin_memory": false,
+            "shuffle": true
+        }
+    },
+    "saved_files": [
+        "./src/data.py",
+        "./src/models.py",
+        "./src/load_data.py",
+        "./src/splines.py"
+    ],
+    "optimizer": {
+        "class": "torch.optim.Adam",
+        "arguments": {
+            "lr": 0.001
+        }
+    },
+    "scheduler": {
+        "class": "torch.optim.lr_scheduler.ReduceLROnPlateau",
+        "arguments": {
+            "factor": 0.1,
+            "patience": 20
+        }
+    },
+    "loss": {
+        "class": "sak.torch.nn.CompoundLoss",
+        "arguments": {
+            "operations": [
+                {
+                    "class": "sak.torch.Mapper",
+                    "arguments": {
+                        "input_mappings": [["outputs", "sigmoid"],["inputs", "y_2d"]],
+                        "operation": {
+                            "class": "sak.torch.nn.DiceLoss"
+                        }
+                    }
+                }
+            ],
+            "weight": [1.0]
+        }
+    },
+    "augmentation": {
+        "class": "sak.torch.Mapper",
+        "arguments": {
+            "input_mappings": [["inputs","x"],["inputs","y_2d"],["inputs","y_1d"]],
+            "output_mappings": [["inputs","x"],["inputs","y_2d"],["inputs","y_1d"]],
+            "operation": {
+                "class": "sak.torch.data.augmentation.AugmentationComposer",
+                "arguments": {
+                    "class": "sak.torch.data.augmentation.RandomChoice",
+                    "transforms": [
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.AdjustGamma",
+                                    "arguments": {
+                                        "gamma": 1, 
+                                        "noise": 0.5
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0,1],
+                                "output_mappings": [0,1],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.AffineTransform",
+                                    "arguments": {}
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0,1],
+                                "output_mappings": [0,1],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.SegmentationShift",
+                                    "arguments": {
+                                        "ratio_x": 0.1,
+                                        "ratio_y": 0.1
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0,1],
+                                "output_mappings": [0,1],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.SegmentationFlip",
+                                    "arguments": {
+                                        "proba_x": 1
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.ClipIntensities",
+                                    "arguments": {
+                                        "threshold": 0.75
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.BlurImage",
+                                    "arguments": {
+                                        "kernel_size": 3,
+                                        "background_value": 0
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.UpDownSample",
+                                    "arguments": {}
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.EnhanceBorders",
+                                    "arguments": {
+                                        "sigma_r": 0.05,
+                                        "background_value": 0
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0,2],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.PrintCursors",
+                                    "arguments": {}
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "data_post": {
+        "class": "sak.torch.Mapper",
+        "arguments": {
+            "input_mappings": [
+                ["inputs","x"]
+            ],
+            "output_mappings": [
+                ["inputs","x"]
+            ],
+            "operation": {
+                "class": "sak.torch.image.data.augmentation.RescaleIntensity",
+                "arguments": {
+                    "out_range": "float32"
+                }
+            }
+        }
+    },
+    "model": {
+        "class": "sak.torch.nn.ModelGraph",
+        "arguments": {
+            "functions": [
+                {
+                    "name": "forward",
+                    "inputs": [
+                        "x"
+                    ],
+                    "outputs": [
+                        "sigmoid"
+                    ]
+                }
+            ],
+            "edges": [
+                ["x", "encoder_lvl1"],
+                ["encoder_lvl1", "encoder_avgpool1"],
+                ["encoder_avgpool1", "encoder_lvl2"],
+                ["encoder_lvl2", "encoder_avgpool2"],
+                ["encoder_avgpool2", "encoder_lvl3"],
+                ["encoder_lvl3", "encoder_avgpool3"],
+                ["encoder_avgpool3", "encoder_lvl4"],
+                ["encoder_lvl4", "encoder_avgpool4"],
+                ["encoder_avgpool4", "encoder_lvl5"],
+                ["encoder_lvl5", "decoder_upsample5"],
+                ["decoder_upsample5", ["decoder_upsample5","encoder_lvl4"]],
+                ["encoder_lvl4", ["decoder_upsample5","encoder_lvl4"]],
+                [["decoder_upsample5","encoder_lvl4"],"decoder_concat4"],
+                ["decoder_concat4", "decoder_lvl4"],
+                ["decoder_lvl4", "decoder_upsample4"],
+                ["decoder_upsample4", ["decoder_upsample4","encoder_lvl3"]],
+                ["encoder_lvl3", ["decoder_upsample4","encoder_lvl3"]],
+                [["decoder_upsample4","encoder_lvl3"],"decoder_concat3"],
+                ["decoder_concat3", "decoder_lvl3"],
+                ["decoder_lvl3", "decoder_upsample3"],
+                ["decoder_upsample3", ["decoder_upsample3","encoder_lvl2"]],
+                ["encoder_lvl2", ["decoder_upsample3","encoder_lvl2"]],
+                [["decoder_upsample3","encoder_lvl2"],"decoder_concat2"],
+                ["decoder_concat2", "decoder_lvl2"],
+                ["decoder_lvl2", "decoder_upsample2"],
+                ["decoder_upsample2", ["decoder_upsample2","encoder_lvl1"]],
+                ["encoder_lvl1", ["decoder_upsample2","encoder_lvl1"]],
+                [["decoder_upsample2","encoder_lvl1"],"decoder_concat1"],
+                ["decoder_concat1", "decoder_lvl1"],
+                ["decoder_lvl1", "sigmoid"]
+            ],
+            "nodes": [
+                {
+                    "id": "encoder_lvl1",
+                    "class": "sak.torch.nn.CNN",
+                    "arguments": {
+                        "operation": {
+                            "class": "sak.torch.nn.Conv2d"
+                        },
+                        "channels": [
+                            1,
+                            16
+                        ],
+                        "regularization": [
+                            {
+                                "class": "torch.nn.LeakyReLU"
+                            },
+                            {
+                                "class": "torch.nn.BatchNorm2d",
+                                "arguments": {
+                                    "num_features": "update"
+                                }
+                            },
+                            {
+                                "class": "sak.torch.nn.Dropout2d",
+                                "arguments": {
+                                    "p": 0.25
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "encoder_avgpool1",
+                    "class": "torch.nn.AvgPool2d",
+                    "arguments": {
+                        "kernel_size": 2
+                    }
+                },
+                {
+                    "id": "encoder_lvl2",
+                    "class": "sak.torch.nn.CNN",
+                    "arguments": {
+                        "operation": {
+                            "class": "sak.torch.nn.Conv2d"
+                        },
+                        "channels": [
+                            16,
+                            32
+                        ],
+                        "regularization": [
+                            {
+                                "class": "torch.nn.LeakyReLU"
+                            },
+                            {
+                                "class": "torch.nn.BatchNorm2d",
+                                "arguments": {
+                                    "num_features": "update"
+                                }
+                            },
+                            {
+                                "class": "sak.torch.nn.Dropout2d",
+                                "arguments": {
+                                    "p": 0.25
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "encoder_avgpool2",
+                    "class": "torch.nn.AvgPool2d",
+                    "arguments": {
+                        "kernel_size": 2
+                    }
+                },
+                {
+                    "id": "encoder_lvl3",
+                    "class": "sak.torch.nn.CNN",
+                    "arguments": {
+                        "operation": {
+                            "class": "sak.torch.nn.Conv2d"
+                        },
+                        "channels": [
+                            32,
+                            64
+                        ],
+                        "regularization": [
+                            {
+                                "class": "torch.nn.LeakyReLU"
+                            },
+                            {
+                                "class": "torch.nn.BatchNorm2d",
+                                "arguments": {
+                                    "num_features": "update"
+                                }
+                            },
+                            {
+                                "class": "sak.torch.nn.Dropout2d",
+                                "arguments": {
+                                    "p": 0.25
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "encoder_avgpool3",
+                    "class": "torch.nn.AvgPool2d",
+                    "arguments": {
+                        "kernel_size": 2
+                    }
+                },
+                {
+                    "id": "encoder_lvl4",
+                    "class": "sak.torch.nn.CNN",
+                    "arguments": {
+                        "operation": {
+                            "class": "sak.torch.nn.Conv2d"
+                        },
+                        "channels": [
+                            64,
+                            128
+                        ],
+                        "regularization": [
+                            {
+                                "class": "torch.nn.LeakyReLU"
+                            },
+                            {
+                                "class": "torch.nn.BatchNorm2d",
+                                "arguments": {
+                                    "num_features": "update"
+                                }
+                            },
+                            {
+                                "class": "sak.torch.nn.Dropout2d",
+                                "arguments": {
+                                    "p": 0.25
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "encoder_avgpool4",
+                    "class": "torch.nn.AvgPool2d",
+                    "arguments": {
+                        "kernel_size": 2
+                    }
+                },
+                {
+                    "id": "encoder_lvl5",
+                    "class": "sak.torch.nn.CNN",
+                    "arguments": {
+                        "operation": {
+                            "class": "sak.torch.nn.Conv2d"
+                        },
+                        "channels": [
+                            128,
+                            256
+                        ],
+                        "regularization": [
+                            {
+                                "class": "torch.nn.LeakyReLU"
+                            },
+                            {
+                                "class": "torch.nn.BatchNorm2d",
+                                "arguments": {
+                                    "num_features": "update"
+                                }
+                            },
+                            {
+                                "class": "sak.torch.nn.Dropout2d",
+                                "arguments": {
+                                    "p": 0.25
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "decoder_upsample5",
+                    "class": "torch.nn.Upsample",
+                    "arguments": {
+                        "scale_factor": 2
+                    }
+                },
+                {
+                    "id": "decoder_concat4",
+                    "class": "sak.torch.nn.Concatenate"
+                },
+                {
+                    "id": "decoder_lvl4",
+                    "class": "sak.torch.nn.CNN",
+                    "arguments": {
+                        "operation": {
+                            "class": "sak.torch.nn.Conv2d"
+                        },
+                        "channels": [
+                            384,
+                            128
+                        ],
+                        "regularization": [
+                            {
+                                "class": "torch.nn.LeakyReLU"
+                            },
+                            {
+                                "class": "torch.nn.BatchNorm2d",
+                                "arguments": {
+                                    "num_features": "update"
+                                }
+                            },
+                            {
+                                "class": "sak.torch.nn.Dropout2d",
+                                "arguments": {
+                                    "p": 0.25
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "decoder_upsample4",
+                    "class": "torch.nn.Upsample",
+                    "arguments": {
+                        "scale_factor": 2
+                    }
+                },
+                {
+                    "id": "decoder_concat3",
+                    "class": "sak.torch.nn.Concatenate"
+                },
+                {
+                    "id": "decoder_lvl3",
+                    "class": "sak.torch.nn.CNN",
+                    "arguments": {
+                        "operation": {
+                            "class": "sak.torch.nn.Conv2d"
+                        },
+                        "channels": [
+                            192,
+                            64
+                        ],
+                        "regularization": [
+                            {
+                                "class": "torch.nn.LeakyReLU"
+                            },
+                            {
+                                "class": "torch.nn.BatchNorm2d",
+                                "arguments": {
+                                    "num_features": "update"
+                                }
+                            },
+                            {
+                                "class": "sak.torch.nn.Dropout2d",
+                                "arguments": {
+                                    "p": 0.25
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "decoder_upsample3",
+                    "class": "torch.nn.Upsample",
+                    "arguments": {
+                        "scale_factor": 2
+                    }
+                },
+                {
+                    "id": "decoder_concat2",
+                    "class": "sak.torch.nn.Concatenate"
+                },
+                {
+                    "id": "decoder_lvl2",
+                    "class": "sak.torch.nn.CNN",
+                    "arguments": {
+                        "operation": {
+                            "class": "sak.torch.nn.Conv2d"
+                        },
+                        "channels": [
+                            96,
+                            32
+                        ],
+                        "regularization": [
+                            {
+                                "class": "torch.nn.LeakyReLU"
+                            },
+                            {
+                                "class": "torch.nn.BatchNorm2d",
+                                "arguments": {
+                                    "num_features": "update"
+                                }
+                            },
+                            {
+                                "class": "sak.torch.nn.Dropout2d",
+                                "arguments": {
+                                    "p": 0.25
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "decoder_upsample2",
+                    "class": "torch.nn.Upsample",
+                    "arguments": {
+                        "scale_factor": 2
+                    }
+                },
+                {
+                    "id": "decoder_concat1",
+                    "class": "sak.torch.nn.Concatenate"
+                },
+                {
+                    "id": "decoder_lvl1",
+                    "class": "sak.torch.nn.CNN",
+                    "arguments": {
+                        "operation": {
+                            "class": "sak.torch.nn.Conv2d"
+                        },
+                        "channels": [
+                            48,
+                            3
+                        ],
+                        "regularization": [
+                            {
+                                "class": "torch.nn.LeakyReLU"
+                            },
+                            {
+                                "class": "torch.nn.BatchNorm2d",
+                                "arguments": {
+                                    "num_features": "update"
+                                }
+                            },
+                            {
+                                "class": "sak.torch.nn.Dropout2d",
+                                "arguments": {
+                                    "p": 0.25
+                                }
+                            }
+                        ],
+                        "regularize_extrema": false
+                    }
+                },
+                {
+                    "id": "sigmoid",
+                    "class": "torch.nn.Sigmoid"
+                }
+            ]
+        }
+    }
+}
