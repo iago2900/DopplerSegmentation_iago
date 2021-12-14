@@ -29,6 +29,7 @@ def main(config_file: str, hpc: bool):
     # 1) Load configuration
     root,model_name,ext = sak.splitrfe(config_file)
     config = sak.load_config(config_file, f"ALL_{model_name}")
+    check_cuda = torch.Tensor([1.,]).cuda().is_cuda
 
     ###########################################################################
     # 2) Load data
