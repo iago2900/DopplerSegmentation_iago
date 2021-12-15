@@ -214,7 +214,7 @@
         "class": "sak.torch.nn.ModelWrapper",
         "arguments": {
             "operation": {
-                "class": "src.unet.Unet",
+                "class": "src.models.UNet",
                 "arguments": {
                     "n_levels": 7,
                     "n_channels": 64,
