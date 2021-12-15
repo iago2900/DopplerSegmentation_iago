@@ -1,7 +1,7 @@
 {
-    "basedir": "C:/Users/hp240/Documents/IAGO/EBM/TFG",
-    "savedir": "C:/Users/hp240/Documents/IAGO/EBM/TFG/TrainedModels",
-    "datadir": "C:/Users/hp240/Documents/IAGO/EBM/TFG/ALL_DOPPLER",
+    "basedir": "/homedtic/imunoz/DADES/DADES/Echo/",
+    "savedir": "/homedtic/imunoz/DADES/DADES/Echo/TrainedModels",
+    "datadir": "/homedtic/imunoz/DADES/DADES/Echo/Databases/ALL_DOPPLER",
     "device": "cuda",
     "iterator": "tqdm.tqdm",
     "keep_fetal": true,

@@ -36,7 +36,7 @@ module load GCCcore/9.3.0 libffi/3.3-GCCcore-9.3.0 bokeh/2.0.2-foss-2020a-Python
             PyYAML/5.3-GCCcore-9.3.0 gettext/0.20.1-GCCcore-9.3.0 PyTorch/1.9.0-fosscuda-2020a-Python-3.8.2;
 source ~/miniconda3/bin/activate;
 
-cd ~/GitHub/DopplerSegmentation;
+cd ~/GitHub/DopplerSegmentation_iago;
 
 python3 train_doppler.py --config_file ./configurations/configuration_HPC.json
 
