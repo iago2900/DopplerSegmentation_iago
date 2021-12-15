@@ -21,8 +21,8 @@ class conv_block(nn.Module):
             if i > 0:
                 setattr(self, 'conv'+str(i), nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1))
 
-    def forward(self, inputs):
-        x = getattr(self,'conv0')(inputs)
+    def forward(self, x):
+        x = getattr(self,'conv0')(x)
         
         for i in range(self.n_conv):
             if i > 0:
@@ -45,11 +45,11 @@ class encoder_block(nn.Module):
         self.conv = conv_block(in_channels, out_channels, n_conv)
         self.pool = nn.MaxPool2d((2, 2))
 
-    def forward(self, inputs):
+    def forward(self, x):
         
         # here x acts also as a skip connection
         # p goes down a level of the network
-        x = self.conv(inputs)
+        x = self.conv(x)
         p = self.pool(x)
 
         # the h and w of p is half of x!
@@ -72,9 +72,9 @@ class decoder_block(nn.Module):
         # the input channels are double because we have the ones coming from the up-conv and the ones coming from the skip
         self.conv = conv_block(out_channels*2, out_channels, n_conv)
 
-    def forward(self, inputs, skip):
+    def forward(self, x, skip):
         # the decoder block receives as inputs the up-conv and the skip connection!
-        x = self.up(inputs) # up-conv
+        x = self.up(x) # up-conv
         x = torch.cat([x, skip], axis=1) # concatenation of the skip connection, axis = 1 because the concatenation is done in the number of channels
         x = self.conv(x)
 
@@ -87,10 +87,12 @@ class Unet(nn.Module):
     def __init__(self, n_channels, i_channels, f_channels, n_levels, n_conv):
         super().__init__()
 
+        self.n_levels = n_levels
+
         """ Encoder """
         
         # list with the operations of the encoder
-        operations_encoder = [encoder_block(1,n_channels, n_conv)]
+        operations_encoder = [encoder_block(i_channels,n_channels, n_conv)]
         
         for i in range(1,n_levels-1):
             operations_encoder.append(encoder_block(n_channels*2**(i-1), n_channels * 2**i, n_conv))
@@ -114,29 +116,29 @@ class Unet(nn.Module):
         """ Sigmoid """
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, inputs):
+    def forward(self, x):
         """ Encoder """
         
-        conv0_result = self.e0(inputs)
+        conv0_result = self.e0(x)
         p_outputs = [conv0_result[1]]
         s_outputs = [conv0_result[0]]
         
-        for i in range(1,n_levels-1):
+        for i in range(1,self.n_levels-1):
             conv_op = getattr(self,'e'+str(i)) 
             conv_result = conv_op(p_outputs[i-1]) 
             p_outputs.append(conv_result[1]) 
             s_outputs.append(conv_result[0]) 
 
         """ Bottleneck """
-        b = self.b(p_outputs[n_levels-2])
+        b = self.b(p_outputs[self.n_levels-2])
 
         """ Decoder """
-        d_outputs = [self.d0(b, s_outputs[n_levels-2])]
-        for i in range(1,n_levels-1):
+        d_outputs = [self.d0(b, s_outputs[self.n_levels-2])]
+        for i in range(1,self.n_levels-1):
             d_outputs.append(getattr(self,'d'+str(i))(d_outputs[i-1], s_outputs[-(i+1)]))
 
         """ Classifier """
-        outputs = self.outputs(d_outputs[n_levels-2])
+        outputs = self.outputs(d_outputs[self.n_levels-2])
         outputs = self.sigmoid(outputs)
 
         return outputs

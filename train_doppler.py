@@ -125,6 +125,9 @@ def main(config_file: str, hpc: bool):
     }
 
     # 3.3) Load data
+
+    line_width = 20
+
     counter_skipped = 0
     print("Loading data...")
     time.sleep(0.5) # Otherwise the print messes up the tqdm thingy
@@ -135,7 +138,7 @@ def main(config_file: str, hpc: bool):
         
         # Get pixel array
         x0,x1,y0,y1,xref,yref,deltax,deltay,unitsx,unitsy = src.load_data.get_frame(dicom,"doppler")
-        doppler = dicom.pixel_array.copy()[y0:y1,x0:x1,]
+        doppler = dicom.pixel_array.copy()[y0-line_width:y1+line_width,x0-line_width:x1+line_width,]
         if dicom.get("PhotometricInterpretation", None) == 'YBR_FULL_422':
             doppler = src.load_data.convert_ybr_to_rgb(doppler)
         
@@ -156,17 +159,21 @@ def main(config_file: str, hpc: bool):
         ####################### CHOOSING A REPRESENTATION #######################
         # Boolean mask from the reference line to the curve position            #
         mask = np.zeros(doppler.shape[:2],dtype=bool)
-        for ix,iy in zip(envelope_x,envelope_y):
-            ix,iy = int(round(ix)),int(round(iy)) # map to int (pixel position)
-            if iy > yref:
-                if yref < 0: # No reference line is depicted in the image
-                    mask[:iy,ix] = 1
-                else:        # Current pixel above the reference line
-                    mask[yref:iy,ix] = 1
-            elif iy < yref:  # Current pixel below the reference line
-                mask[iy:yref,ix] = 1
-            else:            # Current pixel  *IN* the reference line
-                mask[iy,ix] = 1
+
+        gt_x_full = envelope_x.copy()
+        gt_y_full = envelope_y.copy()
+        for i in range(envelope_x.shape[0]-1):
+            if envelope_y[i+1]>envelope_y[i]:
+                s = 1
+            else:
+                s = -1
+            for y in range(envelope_y[i]+1,envelope_y[i+1],s):
+                gt_x_full = np.insert(gt_x_full,i+1,envelope_x[i])
+                gt_y_full = np.insert(gt_y_full,i+1,y)
+        for i in range(-line_width//2,line_width//2):
+            for j in range(-line_width//2,line_width//2):
+                mask[gt_y_full+i,gt_x_full+j] = 1
+        
         #                                                                       #
         ####################### CHOOSING A REPRESENTATION #######################
 
