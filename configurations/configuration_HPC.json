@@ -216,7 +216,7 @@
             "operation": {
                 "class": "src.unet.Unet",
                 "arguments": {
-                    "n_levels": 7,
+                    "n_levels": 5,
                     "n_channels": 64,
                     "i_channels": 1,
                     "f_channels": 1,
