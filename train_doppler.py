@@ -144,7 +144,7 @@ def main(config_file: str, hpc: bool):
         
         # Convert to grayscale
         # doppler = cv2.cvtColor(doppler, cv2.COLOR_BGR2GRAY)
-        doppler = doppler[...,0]
+        doppler = doppler[...,0] # grayscale
 
         # Get curves
         envelope_x = np.array(curves_x[k])-x0

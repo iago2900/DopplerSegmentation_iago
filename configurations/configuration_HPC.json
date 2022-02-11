@@ -21,7 +21,7 @@
     "dataloader": {
         "class": "torch.utils.data.DataLoader",
         "arguments": {
-            "batch_size": 4,
+            "batch_size": 8,
             "num_workers": 4,
             "pin_memory": false,
             "shuffle": true
@@ -31,7 +31,8 @@
         "./src/data.py",
         "./src/models.py",
         "./src/load_data.py",
-        "./src/splines.py"
+        "./src/splines.py",
+        "./src/unet.py"
     ],
     "optimizer": {
         "class": "torch.optim.Adam",
@@ -214,9 +215,9 @@
         "class": "sak.torch.nn.ModelWrapper",
         "arguments": {
             "operation": {
-                "class": "src.unet.Unet",
+                "class": "src.models.wnet",
                 "arguments": {
-                    "n_levels": 7,
+                    "n_levels": 5,
                     "n_channels": 64,
                     "i_channels": 1,
                     "f_channels": 1,

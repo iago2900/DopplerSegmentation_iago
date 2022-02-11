@@ -2,7 +2,7 @@
     "basedir": "C:/Users/hp240/Documents/IAGO/EBM/TFG/",
     "savedir": "C:/Users/hp240/Documents/IAGO/EBM/TFG/TrainedModels",
     "datadir": "C:/Users/hp240/Documents/IAGO/EBM/TFG/ALL_DOPPLER",
-    "device": "cuda",
+    "device": "cpu",
     "iterator": "tqdm.tqdm",
     "keep_fetal": true,
     "keep_pediatric": false,
@@ -214,7 +214,7 @@
         "class": "sak.torch.nn.ModelWrapper",
         "arguments": {
             "operation": {
-                "class": "src.unet.Unet",
+                "class": "src.models.unet",
                 "arguments": {
                     "n_levels": 7,
                     "n_channels": 64,

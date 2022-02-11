@@ -1,0 +1,1 @@
+import sak.hash.cantor

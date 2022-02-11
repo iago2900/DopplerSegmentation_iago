@@ -61,6 +61,13 @@ class DatasetDopplerDict(torch.utils.data.Dataset):
         # Get shape
         shape_y,shape_x = x.shape
         
+        """
+        tiling hasta que sea mas de 512,
+        cogemos un offset para que pueda variar los 512 
+
+        a mi no me interesa
+        """
+
         # Crop unevenly (x dimension)
         if x.shape[1] != self.shape[1]:
             onset  = np.random.randint(x.shape[1]-self.shape[1])
@@ -69,6 +76,12 @@ class DatasetDopplerDict(torch.utils.data.Dataset):
             y_1d   = y_1d[onset:-offset]
             y_2d   = y_2d[:,onset:-offset]
         
+        """
+        aplastamos en el eje y
+
+        el resultado lo tendré que interpolar a la medida original
+        """
+
         # Reshape to 256x512 elements
         x    = cv2.resize(x,self.shape[::-1])[None,]
         y_1d = cv2.resize(y_1d[:,None],(1,self.shape[-1]))[None,:,0]*(self.shape[0]/shape_y)
