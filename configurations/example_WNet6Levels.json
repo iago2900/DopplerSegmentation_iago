@@ -1,7 +1,7 @@
 {
-    "basedir": "/path/to/basedir/",
-    "savedir": "/path/to/basedir/TrainedModels/",
-    "datadir": "/path/to/basedir/databases/ALL_DOPPLER/",
+    "basedir": "/homedtic/imunoz/DADES/DADES/Echo/",
+    "savedir": "/homedtic/imunoz/DADES/DADES/Echo/TrainedModels/",
+    "datadir": "/homedtic/imunoz/DADES/DADES/Echo/Databases/ALL_DOPPLER/",
     "device": "cuda",
     "iterator": "tqdm.tqdm",
     "keep_fetal": true,
