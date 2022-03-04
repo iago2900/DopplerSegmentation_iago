@@ -38,7 +38,7 @@ source ~/miniconda3/bin/activate;
 
 cd ~/GitHub/DopplerSegmentation_iago;
 
-python3 train_doppler_init_mask.py --config_file ./configurations/configuration_HPC.json
+python3 train_doppler.py --config_file ./configurations/configuration_HPC.json
 
 
 
