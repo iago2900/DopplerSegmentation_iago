@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=128G
+#SBATCH --mem=256G
 #SBATCH -o /homedtic/imunoz/DADES/DADES/Echo/Logs/%J.out
 #SBATCH -e /homedtic/imunoz/DADES/DADES/Echo/Logs/%J.err
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK;
@@ -38,7 +38,7 @@ source ~/miniconda3/bin/activate;
 
 cd ~/GitHub/DopplerSegmentation_iago;
 
-python3 train_doppler.py --config_file ./configurations/configuration_HPC.json
+python3 train_doppler_init_mask.py --config_file ./configurations/configuration_HPC.json
 
 
 
