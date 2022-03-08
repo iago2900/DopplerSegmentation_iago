@@ -220,7 +220,7 @@
                     "n_levels": 5,
                     "n_channels": 64,
                     "i_channels": 1,
-                    "f_channels": 1,
+                    "f_channels": 3,
                     "n_conv": 2
                 }
             },
