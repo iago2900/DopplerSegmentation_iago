@@ -126,7 +126,7 @@ def main(config_file: str, hpc: bool):
 
     # 3.3) Load data
 
-    line_width = 40
+    line_width = 15
 
     counter_skipped = 0
     print("Loading data...")
