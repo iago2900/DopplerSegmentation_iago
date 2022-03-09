@@ -21,7 +21,7 @@
     "dataloader": {
         "class": "torch.utils.data.DataLoader",
         "arguments": {
-            "batch_size": 8,
+            "batch_size": 4,
             "num_workers": 4,
             "pin_memory": false,
             "shuffle": true
@@ -217,10 +217,10 @@
             "operation": {
                 "class": "src.models.wnet",
                 "arguments": {
-                    "n_levels": 7,
+                    "n_levels": 5,
                     "n_channels": 64,
                     "i_channels": 1,
-                    "f_channels": 1,
+                    "f_channels": 3,
                     "n_conv": 2
                 }
             },
