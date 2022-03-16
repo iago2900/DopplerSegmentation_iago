@@ -138,7 +138,7 @@ def main(config_file: str, hpc: bool):
         
         # Get pixel array
         x0,x1,y0,y1,xref,yref,deltax,deltay,unitsx,unitsy = src.load_data.get_frame(dicom,"doppler")
-        doppler = dicom.pixel_array.copy()[y0-line_width:y1+line_width,x0-line_width:x1+line_width,]
+        doppler = dicom.pixel_array.copy()[y0:y1,x0:x1,]
         if dicom.get("PhotometricInterpretation", None) == 'YBR_FULL_422':
             doppler = src.load_data.convert_ybr_to_rgb(doppler)
         
@@ -147,7 +147,7 @@ def main(config_file: str, hpc: bool):
         doppler = doppler[...,0] # grayscale
 
         # Get curves
-        envelope_x = np.array(curves_x[k])-x0
+        envelope_x = np.array(curves_x[k])
         envelope_y = np.array(curves_y[k])
         
         # Some ground truths are out of bounds - skip these, they do not contain a full cardiac cycle
@@ -172,7 +172,7 @@ def main(config_file: str, hpc: bool):
                 gt_y_full = np.insert(gt_y_full,i+1,y)
         for i in range(-line_width//2,line_width//2):
             for j in range(-line_width//2,line_width//2):
-                mask[gt_y_full+i,gt_x_full+j] = 1
+                mask[gt_y_full+i,gt_x_full-x0+j] = 1
         
         #                                                                       #
         ####################### CHOOSING A REPRESENTATION #######################
