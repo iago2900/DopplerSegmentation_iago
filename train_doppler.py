@@ -126,7 +126,7 @@ def main(config_file: str, hpc: bool):
 
     # 3.3) Load data
 
-    line_width = 20
+    line_width = 30
 
     counter_skipped = 0
     print("Loading data...")
@@ -157,7 +157,7 @@ def main(config_file: str, hpc: bool):
             continue
         
         ####################### CHOOSING A REPRESENTATION #######################
-        # Boolean mask from the reference line to the curve position            #
+        # Boolean mask from of 'line_width' pixels width around the curve       #
         mask = np.zeros(doppler.shape[:2],dtype=bool)
 
         gt_x_full = envelope_x.copy()
