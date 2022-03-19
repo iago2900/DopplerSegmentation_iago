@@ -147,7 +147,7 @@ def main(config_file: str, hpc: bool):
         doppler = doppler[...,0] # grayscale
 
         # Get curves
-        envelope_x = np.array(curves_x[k])
+        envelope_x = np.array(curves_x[k]) - x0
         envelope_y = np.array(curves_y[k])
         
         # Some ground truths are out of bounds - skip these, they do not contain a full cardiac cycle
@@ -172,7 +172,7 @@ def main(config_file: str, hpc: bool):
                 gt_y_full = np.insert(gt_y_full,i+1,y)
         for i in range(-line_width//2,line_width//2):
             for j in range(-line_width//2,line_width//2):
-                mask[gt_y_full+i,gt_x_full-x0+j] = 1
+                mask[gt_y_full+i,gt_x_full+j] = 1
         
         #                                                                       #
         ####################### CHOOSING A REPRESENTATION #######################
