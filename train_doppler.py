@@ -172,7 +172,7 @@ def main(config_file: str, hpc: bool):
                 gt_y_full = np.insert(gt_y_full,i+1,y)
         for i in range(-line_width//2,line_width//2):
             for j in range(-line_width//2,line_width//2):
-                mask[gt_y_full+i,gt_x_full-x0+j] = 1
+                mask[gt_y_full+i,gt_x_full+j] = 1
         
         #                                                                       #
         ####################### CHOOSING A REPRESENTATION #######################
