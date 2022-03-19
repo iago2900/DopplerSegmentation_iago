@@ -147,8 +147,8 @@ def main(config_file: str, hpc: bool):
         doppler = doppler[...,0] # grayscale
 
         # Get curves
-        envelope_x = np.array(curves_x[k]) - x0
-        envelope_y = np.array(curves_y[k])
+        envelope_x = curves_x[dicom.SOPInstanceUID] - x0
+        envelope_y = curves_y[dicom.SOPInstanceUID]
         
         # Some ground truths are out of bounds - skip these, they do not contain a full cardiac cycle
         filter_bounds = (envelope_x < 0) | (envelope_x >= doppler.shape[1]) 
