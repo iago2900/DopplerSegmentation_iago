@@ -147,8 +147,8 @@ def main(config_file: str, hpc: bool):
         doppler = doppler[...,0] # grayscale
 
         # Get curves
-        envelope_x = curves_x[dicom.SOPInstanceUID] - x0
-        envelope_y = curves_y[dicom.SOPInstanceUID]
+        envelope_x = np.array(curves_x[k]) - x0
+        envelope_y = np.array(curves_y[k])
         
         # Some ground truths are out of bounds - skip these, they do not contain a full cardiac cycle
         filter_bounds = (envelope_x < 0) | (envelope_x >= doppler.shape[1]) 
@@ -172,7 +172,11 @@ def main(config_file: str, hpc: bool):
                 gt_y_full = np.insert(gt_y_full,i+1,y)
         for i in range(-line_width//2,line_width//2):
             for j in range(-line_width//2,line_width//2):
-                mask[gt_y_full+i,gt_x_full+j] = 1
+                # this just avoids errors when GT is near the edge and the mask surpases it (the pixels outside just don't count)
+                try:
+                    mask[gt_y_full+i,gt_x_full+j] = 1
+                except IndexError:
+                    continue
         
         #                                                                       #
         ####################### CHOOSING A REPRESENTATION #######################
