@@ -1,0 +1,233 @@
+{
+    "basedir": "/homedtic/imunoz/DADES/DADES/Echo/",
+    "savedir": "/homedtic/imunoz/DADES/DADES/Echo/TrainedModels/",
+    "datadir": "/homedtic/imunoz/DADES/DADES/Echo/Databases/ALL_DOPPLER/",
+    "device": "cuda",
+    "iterator": "tqdm.tqdm",
+    "keep_fetal": true,
+    "keep_pediatric": false,
+    "keep_tdi": true,
+    "keep_valves": true,
+    "keep_vessels": true,
+    "seed": 123456,
+    "epochs": 100,
+    "dataset": {
+        "class": "src.data.DatasetDopplerDict",
+        "arguments": {
+            "shape": [256,512],
+            "dtype": "float32"
+        }
+    },
+    "dataloader": {
+        "class": "torch.utils.data.DataLoader",
+        "arguments": {
+            "batch_size": 4,
+            "num_workers": 4,
+            "pin_memory": false,
+            "shuffle": true
+        }
+    },
+    "saved_files": [
+        "./src/data.py",
+        "./src/models.py",
+        "./src/load_data.py",
+        "./src/splines.py",
+        "./src/unet.py"
+    ],
+    "optimizer": {
+        "class": "torch.optim.Adam",
+        "arguments": {
+            "lr": 0.001
+        }
+    },
+    "scheduler": {
+        "class": "torch.optim.lr_scheduler.ReduceLROnPlateau",
+        "arguments": {
+            "factor": 0.1,
+            "patience": 20
+        }
+    },
+    "loss": {
+        "class": "sak.torch.nn.CompoundLoss",
+        "arguments": {
+            "operations": [
+                {
+                    "class": "sak.torch.Mapper",
+                    "arguments": {
+                        "input_mappings": [["outputs", "sigmoid"],["inputs", "y_2d"]],
+                        "operation": {
+                            "class": "sak.torch.nn.DiceLoss"
+                        }
+                    }
+                }
+            ],
+            "weight": [1.0]
+        }
+    },
+    "augmentation": {
+        "class": "sak.torch.Mapper",
+        "arguments": {
+            "input_mappings": [["inputs","x"],["inputs","y_2d"],["inputs","y_1d"]],
+            "output_mappings": [["inputs","x"],["inputs","y_2d"],["inputs","y_1d"]],
+            "operation": {
+                "class": "sak.torch.data.augmentation.AugmentationComposer",
+                "arguments": {
+                    "class": "sak.torch.data.augmentation.RandomChoice",
+                    "transforms": [
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.AdjustGamma",
+                                    "arguments": {
+                                        "gamma": 1, 
+                                        "noise": 0.5
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0,1],
+                                "output_mappings": [0,1],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.AffineTransform",
+                                    "arguments": {}
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0,1],
+                                "output_mappings": [0,1],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.SegmentationShift",
+                                    "arguments": {
+                                        "ratio_x": 0.1,
+                                        "ratio_y": 0.1
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0,1],
+                                "output_mappings": [0,1],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.SegmentationFlip",
+                                    "arguments": {
+                                        "proba_x": 1
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.ClipIntensities",
+                                    "arguments": {
+                                        "threshold": 0.75
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.BlurImage",
+                                    "arguments": {
+                                        "kernel_size": 3,
+                                        "background_value": 0
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.UpDownSample",
+                                    "arguments": {}
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.EnhanceBorders",
+                                    "arguments": {
+                                        "sigma_r": 0.05,
+                                        "background_value": 0
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "class": "sak.torch.Mapper",
+                            "arguments": {
+                                "input_mappings": [0,2],
+                                "output_mappings": [0],
+                                "operation": {
+                                    "class": "sak.torch.image.data.augmentation.PrintCursors",
+                                    "arguments": {}
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "data_post": {
+        "class": "sak.torch.Mapper",
+        "arguments": {
+            "input_mappings": [
+                ["inputs","x"]
+            ],
+            "output_mappings": [
+                ["inputs","x"]
+            ],
+            "operation": {
+                "class": "sak.torch.image.data.augmentation.RescaleIntensity",
+                "arguments": {
+                    "out_range": "float32"
+                }
+            }
+        }
+    },
+    "model": {
+        "class": "sak.torch.nn.ModelWrapper",
+        "arguments": {
+            "operation": {
+                "class": "src.models.wnet",
+                "arguments": {
+                    "n_levels": 5,
+                    "n_channels": 64,
+                    "i_channels": 1,
+                    "f_channels": 3,
+                    "n_conv": 2
+                }
+            },
+            "input_mappings": [
+                ["inputs", "x"]
+            ],
+            "output_names": ["sigmoid"]
+        }
+    }
+}
