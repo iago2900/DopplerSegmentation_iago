@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=512G
+#SBATCH --mem=64G
 #SBATCH -o /homedtic/imunoz/DADES/DADES/Echo/Logs/%J.out
 #SBATCH -e /homedtic/imunoz/DADES/DADES/Echo/Logs/%J.err
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK;
