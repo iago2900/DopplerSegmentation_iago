@@ -218,7 +218,7 @@
                 "class": "src.models.wnet",
                 "arguments": {
                     "n_levels": 7,
-                    "n_channels": 64,
+                    "n_channels": 32,
                     "i_channels": 1,
                     "f_channels": 3,
                     "n_conv": 2
