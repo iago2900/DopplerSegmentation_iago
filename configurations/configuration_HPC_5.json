@@ -54,7 +54,7 @@
                 {
                     "class": "sak.torch.Mapper",
                     "arguments": {
-                        "input_mappings": [["outputs", "sigmoid"],["inputs", "y_2d"]],
+                        "input_mappings": [["outputs", "sigmoid"],["inputs", "y_1d"]],
                         "operation": {
                             "class": "sak.torch.nn.DiceLoss"
                         }
@@ -215,7 +215,7 @@
         "class": "sak.torch.nn.ModelWrapper",
         "arguments": {
             "operation": {
-                "class": "src.models.wnet",
+                "class": "src.models.wnet_lr",
                 "arguments": {
                     "n_levels": 5,
                     "n_channels": 64,
