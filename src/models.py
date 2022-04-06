@@ -155,6 +155,32 @@ class unet(nn.Module):
         
         return outputs
 
+class unet_lr(nn.Module):
+    def __init__(self, n_channels, i_channels, f_channels, n_levels, n_conv):
+        super().__init__()
+        
+        self.basenet = basenet(n_channels, i_channels, n_levels, n_conv)
+        
+        """ Classifier: last convolution 1x1 """
+        self.outputs = nn.Conv2d(n_channels, f_channels, kernel_size=1, padding=0)
+        
+        """ Sigmoid """
+        self.sigmoid = nn.Sigmoid()
+
+        ''' Linear regression '''
+        self.lr = nn.MaxPool2d((256,1))
+        
+    def forward(self, x):
+        
+        x = self.basenet(x)
+        
+        """ Classifier """
+        outputs = self.outputs(x)
+        outputs = self.sigmoid(outputs)
+        outputs = self.lr(outputs) # linear regresion
+        
+        return outputs
+
 class wnet(nn.Module):
     def __init__(self, n_channels, i_channels, f_channels, n_levels, n_conv):
         super().__init__()
@@ -183,5 +209,40 @@ class wnet(nn.Module):
         """ Classifier """
         outputs = self.outputs(x)
         outputs = self.sigmoid(outputs)
+        
+        return outputs
+
+class wnet_lr(nn.Module):
+    def __init__(self, n_channels, i_channels, f_channels, n_levels, n_conv):
+        super().__init__()
+        
+        """ Encoder """
+        self.encoder = basenet(n_channels, i_channels, n_levels, n_conv)
+        
+        """ Middle:  softmax activation function """
+        self.softmax = nn.Softmax()
+        
+        """ Decoder """
+        self.decoder = basenet(n_channels, n_channels, n_levels, n_conv)
+        
+        """ Classifier: last convolution 1x1 """
+        self.outputs = nn.Conv2d(n_channels, f_channels, kernel_size=1, padding=0)
+        
+        """ Sigmoid """
+        self.sigmoid = nn.Sigmoid()
+
+        ''' Linear regression '''
+        self.lr = nn.MaxPool2d((256,1))
+        
+    def forward(self, x):
+        
+        x = self.encoder(x)
+        x = self.softmax(x)
+        x = self.decoder(x)
+        
+        """ Classifier """
+        outputs = self.outputs(x)
+        outputs = self.sigmoid(outputs)
+        outputs = self.lr(outputs) # linear regresion
         
         return outputs
