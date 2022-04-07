@@ -54,7 +54,7 @@
                 {
                     "class": "sak.torch.Mapper",
                     "arguments": {
-                        "input_mappings": [["outputs", "sigmoid"],["inputs", "y_1d"]],
+                        "input_mappings": [["outputs", "sigmoid"],["inputs", "y_2d"]],
                         "operation": {
                             "class": "sak.torch.nn.DiceLoss"
                         }

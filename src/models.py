@@ -17,9 +17,9 @@ class conv_block(nn.Module):
         setattr(self, 'conv0', nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)) # the first conv is different (in_channels)
         
         for i in range(n_conv):
-            setattr(self, 'relu'+str(i), nn.ReLU())
+            setattr(self, 'relu'+str(i), nn.LeakyReLU())
             setattr(self, 'bn'+str(i), nn.BatchNorm2d(out_channels))
-            setattr(self, 'dropout'+str(i), nn.Dropout(0.25))
+            setattr(self, 'dropout'+str(i), nn.Dropout2d(0.25))
             if i > 0:
                 setattr(self, 'conv'+str(i), nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1))
 
@@ -45,7 +45,7 @@ class encoder_block(nn.Module):
         super().__init__()
         
         self.conv = conv_block(in_channels, out_channels, n_conv)
-        self.pool = nn.MaxPool2d((2, 2))
+        self.pool = nn.AvgPool2d((2, 2))
 
     def forward(self, x):
         
