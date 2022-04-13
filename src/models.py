@@ -168,7 +168,8 @@ class unet_lr(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
         ''' Linear regression '''
-        self.lr = nn.MaxPool2d((256,1))
+        #self.lr = nn.MaxPool2d((256,1))
+        self.lr = sak.torch.nn.SoftArgmaxAlongAxis(2)
         
     def forward(self, x):
         
@@ -232,7 +233,8 @@ class wnet_lr(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
         ''' Linear regression '''
-        self.lr = nn.MaxPool2d((256,1))
+        #self.lr = nn.MaxPool2d((256,1))
+        self.lr = sak.torch.nn.SoftArgmaxAlongAxis(2)
         
     def forward(self, x):
         
