@@ -10,7 +10,7 @@
     "keep_valves": true,
     "keep_vessels": true,
     "seed": 123456,
-    "epochs": 100,
+    "epochs": 100, 
     "dataset": {
         "class": "src.data.DatasetDopplerDict",
         "arguments": {
@@ -54,9 +54,9 @@
                 {
                     "class": "sak.torch.Mapper",
                     "arguments": {
-                        "input_mappings": [["outputs", "sigmoid"],["inputs", "y_2d"]],
+                        "input_mappings": [["outputs", "sigmoid"],["inputs", "y_1d"]],
                         "operation": {
-                            "class": "sak.torch.nn.DiceLoss"
+                            "class": "sak.torch.nn.MSELoss"
                         }
                     }
                 }
@@ -215,7 +215,7 @@
         "class": "sak.torch.nn.ModelWrapper",
         "arguments": {
             "operation": {
-                "class": "src.models.unet",
+                "class": "src.models.wnet_lr",
                 "arguments": {
                     "n_levels": 6,
                     "n_channels": 64,
